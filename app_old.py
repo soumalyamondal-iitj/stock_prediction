@@ -7,12 +7,12 @@ import re
 from datetime import timedelta
 
 # Load the best model
-model_filename = '../model/best_model.pkl'
+model_filename = 'best_model.pkl'
 model = joblib.load(model_filename)
 
 # Load data for reference
-tweets_data_path = '../data/stock_tweets.csv'
-stock_data_path = '../data/stock_yfinance_data.csv'
+tweets_data_path = 'stock_tweets.csv'
+stock_data_path = 'stock_yfinance_data.csv'
 
 tweets_df = pd.read_csv(tweets_data_path, engine='python', on_bad_lines='skip')
 stock_df = pd.read_csv(stock_data_path)

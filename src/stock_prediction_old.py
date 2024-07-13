@@ -17,8 +17,8 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 mlflow.set_experiment("Stock Price Prediction")
 
 # Load the data
-tweets_data_path = '../data/stock_tweets.csv'
-stock_data_path = '../data/stock_yfinance_data.csv'
+tweets_data_path = 'stock_tweets.csv'
+stock_data_path = 'stock_yfinance_data.csv'
 
 # Read tweets data with error handling
 tweets_df = pd.read_csv(tweets_data_path, engine='python', on_bad_lines='skip')
@@ -156,4 +156,4 @@ predictions
 
 
 #**Save the trained model**:
-joblib.dump(best_model, '../model/best_model.pkl')
+joblib.dump(best_model, 'best_model.pkl')
