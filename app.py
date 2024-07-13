@@ -6,8 +6,8 @@ import joblib
 # Load the data
 @st.cache_data
 def load_data():
-    stock_data = pd.read_csv('stock_yfinance_data.csv')
-    tweets_data = pd.read_csv('stock_tweets.csv')
+    stock_data = pd.read_csv('data/stock_yfinance_data.csv')
+    tweets_data = pd.read_csv('data/stock_tweets.csv')
 
     # Convert the Date columns to datetime
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
@@ -58,7 +58,7 @@ data = load_data()
 stock_names = data['Stock Name'].unique()
 
 # Load the best model
-model_filename = 'best_model.pkl'
+model_filename = 'model/best_model.pkl'
 model = joblib.load(model_filename)
 
 st.title("Stock Price Prediction Using Sentiment Analysis")
