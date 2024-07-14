@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from textblob import TextBlob
 import joblib
+import matplotlib.pyplot as plt
 
 # Load the data
 @st.cache_data
@@ -78,13 +79,16 @@ ma14 = latest_data['MA14']
 daily_change = latest_data['Daily_Change']
 volatility = latest_data['Volatility']
 
-st.write(f"Previous Close Price: {prev_close}")
-st.write(f"Previous Sentiment: {prev_sentiment}")
-st.write(f"7-day Moving Average: {ma7}")
-st.write(f"14-day Moving Average: {ma14}")
-st.write(f"Daily Change: {daily_change}")
-st.write(f"Volatility: {volatility}")
+# Display the latest stock data in a table
+latest_data_df = pd.DataFrame({
+    'Metric': ['Previous Close Price', 'Previous Sentiment', '7-day Moving Average', '14-day Moving Average', 'Daily Change', 'Volatility'],
+    'Value': [prev_close, prev_sentiment, ma7, ma14, daily_change, volatility]
+})
 
+st.write("Latest Stock Data:")
+st.write(latest_data_df)
+
+st.write("Use the inputs above to predict the next days close prices of the stock.")
 if st.button("Predict"):
     predictions = []
     latest_date = latest_data['Date']
@@ -108,6 +112,24 @@ if st.button("Predict"):
         ma14 = (ma14 * 13 + next_day_prediction) / 14  # Simplified rolling calculation
         daily_change = next_day_prediction - prev_close
 
-    st.write(f"Predicted next {days_to_predict} days close prices: {predictions}")
+    # st.write(f"Predicted next {days_to_predict} days close prices: {predictions}")
+    # Prepare prediction data for display
+    # Prepare prediction data for display
+    prediction_dates = pd.date_range(start=latest_date + pd.Timedelta(days=1), periods=days_to_predict)
+    prediction_df = pd.DataFrame({
+        'Date': prediction_dates,
+        'Predicted Close Price': predictions
+    })
 
-st.write("Use the inputs above to predict the next days close prices of the stock.")
+    st.subheader("Predicted Prices")
+    st.write(prediction_df)
+
+   # Plotting the results
+    st.subheader("Prediction Chart")
+    plt.figure(figsize=(10, 6))
+    plt.plot(prediction_df['Date'], prediction_df['Predicted Close Price'], marker='o', linestyle='--', label="Predicted Close Price")
+    plt.xlabel("Date")
+    plt.ylabel("Close Price")
+    plt.title(f"{selected_stock} Predicted Close Prices")
+    plt.legend()
+    st.pyplot(plt)
