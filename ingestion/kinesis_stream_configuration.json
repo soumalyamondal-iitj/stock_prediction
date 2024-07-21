@@ -1,0 +1,28 @@
+{
+    "StreamDescription": {
+        "Shards": [
+            {
+                "ShardId": "shardId-000000000000",
+                "HashKeyRange": {
+                    "StartingHashKey": "0",
+                    "EndingHashKey": "340282366920938463463374607431768211455"
+                },
+                "SequenceNumberRange": {
+                    "StartingSequenceNumber": "49653889574499361635238903616892485523570912458883203074"
+                }
+            }
+        ],
+        "StreamARN": "arn:aws:kinesis:ap-south-1:381492295267:stream/aws_kenesis_ade",
+        "StreamName": "aws_kenesis_ade",
+        "StreamStatus": "ACTIVE",
+        "RetentionPeriodHours": 24,
+        "EnhancedMonitoring": [
+            {
+                "ShardLevelMetrics": []
+            }
+        ],
+        "EncryptionType": "NONE",
+        "KeyId": null,
+        "StreamCreationTimestamp": "2024-07-13T15:35:48+00:00"
+    }
+}
