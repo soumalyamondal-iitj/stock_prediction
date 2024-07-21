@@ -3,12 +3,36 @@ import pandas as pd
 from textblob import TextBlob
 import joblib
 import matplotlib.pyplot as plt
-
+import datetime
+import boto3
+import os
 # Load the data
 @st.cache_data
 def load_data():
-    stock_data = pd.read_csv('data/stock_yfinance_data.csv')
-    tweets_data = pd.read_csv('data/stock_tweets.csv')
+    
+    # Initialize a session using Amazon DynamoDB
+    session = boto3.Session(
+        aws_access_key_id=os.environ["key_id"],
+        aws_secret_access_key=os.environ["access_key"],
+        region_name=os.environ["region"]
+    )
+
+    # # Initialize DynamoDB resource
+    dynamodb = session.resource('dynamodb')
+
+    # # Specify the table
+    table = dynamodb.Table('Tweets')
+
+    # # Scan the table
+    response = table.scan()
+
+    # # Load data into a pandas DataFrame
+    data = response['Items']
+
+    # Load the datasets
+    stock_data = pd.read_csv('./data/stock_yfinance_data.csv')
+    # tweets_data = pd.read_csv('./data/stock_tweets.csv')
+    tweets_data = pd.DataFrame(data)
 
     # Convert the Date columns to datetime
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
@@ -91,7 +115,7 @@ st.write(latest_data_df)
 st.write("Use the inputs above to predict the next days close prices of the stock.")
 if st.button("Predict"):
     predictions = []
-    latest_date = latest_data['Date']
+    latest_date = datetime.datetime.now()
 
     for i in range(days_to_predict):
         X_future = pd.DataFrame({

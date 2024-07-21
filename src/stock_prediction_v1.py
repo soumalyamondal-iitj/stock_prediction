@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.svm import SVR
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import mlflow
 import mlflow.sklearn
 import xgboost as xgb
@@ -20,16 +20,16 @@ session = boto3.Session(
     region_name=os.environ["region"]
 )
 
-# Initialize DynamoDB resource
+# # Initialize DynamoDB resource
 dynamodb = session.resource('dynamodb')
 
-# Specify the table
+# # Specify the table
 table = dynamodb.Table('Tweets')
 
-# Scan the table
+# # Scan the table
 response = table.scan()
 
-# Load data into a pandas DataFrame
+# # Load data into a pandas DataFrame
 data = response['Items']
 
 # Load the datasets
@@ -159,7 +159,7 @@ param_grids = {
 best_model = None
 best_params = None
 best_mse = float("inf")
-
+mlflow.set_experiment("Stock Analysis")
 for model_name, model in models.items():
     grid_search = GridSearchCV(model, param_grids[model_name], cv=3, n_jobs=-1, scoring='neg_mean_squared_error')
     grid_search.fit(X_train, y_train)
@@ -167,6 +167,20 @@ for model_name, model in models.items():
     model_best_params = grid_search.best_params_
     y_pred = model_best.predict(X_test)
     mse = mean_squared_error(y_test, y_pred)
+    with mlflow.start_run(run_name=model_name):
+        # Train the model
+        model.fit(X_train, y_train)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Log parameters and metrics
+        mlflow.log_param("model_name", model_name)
+        mlflow.log_metric("rmse", mse)
+        mlflow.log_metric("mae", mean_absolute_error(y_test, y_pred))
+        mlflow.log_metric("r2", r2_score(y_test, y_pred))
+        # Log the model
+        mlflow.sklearn.log_model(model, "model")
 
     print(f'{model_name} Best Parameters: {model_best_params}')
     print(f'{model_name} Mean Squared Error: {mse}')
@@ -179,7 +193,8 @@ for model_name, model in models.items():
 print(f'Best Model: {best_model} with MSE: {best_mse}')
 
 # Register the final model with MLflow
-with mlflow.start_run():
+with mlflow.start_run(run_name="Best Model"):
+    mlflow.log_param("model_name", best_model)
     mlflow.log_params(best_params)
     mlflow.log_metric("mse", best_mse)
     mlflow.sklearn.log_model(best_model, "model")
